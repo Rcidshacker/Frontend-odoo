@@ -98,19 +98,19 @@ export function ChatWidget() {
     return (
         <Card className="fixed bottom-5 right-5 w-96 h-[600px] flex flex-col shadow-2xl z-50">
             <CardHeader className="flex flex-row items-center justify-between p-3 border-b">
-                <CardTitle className="text-lg">
+                <CardTitle className="text-lg truncate">
                     {selectedConversationId && otherUser ? otherUser.name : "Messages"}
                 </CardTitle>
-                <div className="flex items-center gap-2">
-                    <Link href="/chat">
-                         <Button variant="ghost" size="icon" className="h-8 w-8">
+                <div className="flex items-center gap-1">
+                    <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+                        <Link href="/chat" aria-label="Open full chat">
                             <ChevronsRight />
-                        </Button>
-                    </Link>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsMinimized(true)}>
+                        </Link>
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsMinimized(true)} aria-label="Minimize chat">
                         <Minus />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsOpen(false)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsOpen(false)} aria-label="Close chat">
                         <X />
                     </Button>
                 </div>
@@ -119,19 +119,19 @@ export function ChatWidget() {
                 <>
                     <CardContent className="flex-1 p-0">
                         <ScrollArea className="h-full p-3">
-                             <div className="space-y-3">
+                             <div className="space-y-4">
                                 {selectedConversation?.messages.map(msg => (
                                     <div key={msg.id} className={cn(
                                         "flex items-end gap-2 text-sm",
                                         msg.senderId === currentUser.id ? "justify-end" : "justify-start"
                                     )}>
                                         {msg.senderId !== currentUser.id && <Avatar className="h-6 w-6"><AvatarImage src={otherUser.avatar} data-ai-hint="user avatar" /></Avatar>}
-                                        <p className={cn(
-                                            "max-w-64 p-2 rounded-lg",
+                                        <div className={cn(
+                                            "max-w-[75%] p-2 rounded-lg",
                                             msg.senderId === currentUser.id ? "bg-primary text-primary-foreground rounded-br-none" : "bg-muted rounded-bl-none"
                                         )}>
-                                            {msg.text}
-                                        </p>
+                                            <p className="break-words">{msg.text}</p>
+                                        </div>
                                     </div>
                                 ))}
                                 <div ref={messageEndRef} />
@@ -146,11 +146,14 @@ export function ChatWidget() {
                     </CardFooter>
                 </>
             ) : (
-                <CardContent className="flex-1 p-0">
+                <div className="flex flex-col h-full">
                     <div className="p-2 border-b">
-                        <Input placeholder="Search..." />
+                        <div className="relative">
+                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                           <Input placeholder="Search..." className="pl-9 h-9" />
+                        </div>
                     </div>
-                    <ScrollArea className="h-full">
+                    <ScrollArea className="flex-1">
                          {sortedConversations.map(convo => {
                             const participant = users.find(u => u.id === convo.participantIds.find(id => id !== currentUser.id));
                             if (!participant) return null;
@@ -173,7 +176,7 @@ export function ChatWidget() {
                             )
                         })}
                     </ScrollArea>
-                </CardContent>
+                </div>
             )}
         </Card>
     );
