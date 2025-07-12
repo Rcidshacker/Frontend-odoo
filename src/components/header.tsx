@@ -31,6 +31,12 @@ export default function Header() {
             Home
           </Link>
           <Link
+            href="/requests"
+            className="transition-colors hover:text-primary"
+          >
+            Requests
+          </Link>
+          <Link
             href="/profile"
             className="transition-colors hover:text-primary"
           >
@@ -63,6 +69,9 @@ export default function Header() {
               <DropdownMenuItem asChild>
                 <Link href="/profile">Profile</Link>
               </DropdownMenuItem>
+               <DropdownMenuItem asChild>
+                <Link href="/requests">Swap Requests</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem disabled>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
@@ -86,6 +95,12 @@ export default function Header() {
                         className="text-lg font-medium hover:text-primary"
                     >
                         Home
+                    </Link>
+                    <Link
+                        href="/requests"
+                        className="text-lg font-medium hover:text-primary"
+                    >
+                        Requests
                     </Link>
                     <Link
                         href="/profile"

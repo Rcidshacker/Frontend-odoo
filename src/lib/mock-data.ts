@@ -1,9 +1,9 @@
 export interface Skill {
   name: string;
-  category: 'Technology' | 'Creative' | 'Lifestyle' | 'Business';
+  category: "Technology" | "Creative" | "Lifestyle" | "Business";
   description?: string;
   tags?: string[];
-  proficiency?: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
+  proficiency?: "Beginner" | "Intermediate" | "Advanced" | "Expert";
 }
 
 export interface User {
@@ -15,8 +15,21 @@ export interface User {
   skillsOffered: Skill[];
   skillsWanted: Skill[];
   availability: string[];
-  profileVisibility: 'Public' | 'Private';
+  profileVisibility: "Public" | "Private";
   feedback: { rating: number; comment: string; from: string }[];
+}
+
+export interface SwapRequest {
+  id: string;
+  fromUserId: string;
+  toUserId: string;
+  fromUserSkillName: string;
+  toUserSkillName: string;
+  status: "pending" | "accepted" | "rejected" | "completed" | "canceled";
+  message?: string;
+  proposedSchedule?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const users: User[] = [
@@ -27,20 +40,61 @@ export const users: User[] = [
     location: "San Francisco, CA",
     bio: "Full-stack developer with a passion for music and photography. Let's learn together!",
     skillsOffered: [
-      { name: "React Development", category: "Technology", proficiency: "Expert", description: "Building modern, fast web apps." },
-      { name: "Guitar Lessons", category: "Creative", proficiency: "Intermediate", description: "Acoustic and electric guitar basics." },
-      { name: "Photography", category: "Creative", proficiency: "Advanced", description: "Landscape and portrait photography." },
+      {
+        name: "React Development",
+        category: "Technology",
+        proficiency: "Expert",
+        description: "Building modern, fast web apps with Next.js and TypeScript.",
+        tags: ["frontend", "web dev", "javascript"],
+      },
+      {
+        name: "Guitar Lessons",
+        category: "Creative",
+        proficiency: "Intermediate",
+        description: "Acoustic and electric guitar basics, from chords to fingerstyle.",
+        tags: ["music", "instrument"],
+      },
+      {
+        name: "Photography",
+        category: "Creative",
+        proficiency: "Advanced",
+        description: "Expert in landscape and portrait photography. Can teach Lightroom and Photoshop.",
+        tags: ["photo", "art", "adobe"],
+      },
     ],
     skillsWanted: [
-      { name: "Creative Writing", category: "Creative", description: "Want to write short stories." },
-      { name: "Data Science", category: "Technology", description: "Interested in learning Python for data analysis." },
-      { name: "Public Speaking", category: "Business", description: "Looking to improve my presentation skills." },
+      {
+        name: "Creative Writing",
+        category: "Creative",
+        description: "I've always wanted to write compelling short stories and maybe a novel one day.",
+        tags: ["writing", "storytelling"],
+      },
+      {
+        name: "Data Science",
+        category: "Technology",
+        description: "Looking to get into machine learning and data analysis using Python.",
+        tags: ["python", "ML", "AI"],
+      },
+      {
+        name: "Public Speaking",
+        category: "Business",
+        description: "I want to become more confident and effective when presenting my ideas.",
+        tags: ["communication", "presentation"],
+      },
     ],
     availability: ["evenings", "weekends"],
     profileVisibility: "Public",
     feedback: [
-      { rating: 5, comment: "Alex is a fantastic React developer!", from: "Jane Smith" },
-      { rating: 4, comment: "Great guitar teacher, very patient.", from: "Bob Johnson" },
+      {
+        rating: 5,
+        comment: "Alex is a fantastic React developer!",
+        from: "Jane Smith",
+      },
+      {
+        rating: 4,
+        comment: "Great guitar teacher, very patient.",
+        from: "Bob Johnson",
+      },
     ],
   },
   {
@@ -194,3 +248,66 @@ export const users: User[] = [
 ];
 
 export const currentUser = users[0];
+
+export const allSwapRequests: SwapRequest[] = [
+  {
+    id: "req-1",
+    fromUserId: "user-2",
+    toUserId: "user-1",
+    fromUserSkillName: "Creative Writing",
+    toUserSkillName: "React Development",
+    status: "pending",
+    message: "Hey Alex, I saw you wanted to learn creative writing. I'm a professional writer and would love to help. Your React skills look amazing, and I'm trying to build a new portfolio site. Let me know if you're interested!",
+    proposedSchedule: "Tuesdays or Thursdays after 6 PM EST.",
+    createdAt: "2024-07-28T10:00:00Z",
+    updatedAt: "2024-07-28T10:00:00Z",
+  },
+  {
+    id: "req-2",
+    fromUserId: "user-3",
+    toUserId: "user-1",
+    fromUserSkillName: "Data Science",
+    toUserSkillName: "Guitar Lessons",
+    status: "accepted",
+    message: "Hi Alex, I can teach you Python for data science in exchange for some guitar lessons. I've always wanted to learn!",
+    proposedSchedule: "Flexible on weekends.",
+    createdAt: "2024-07-27T14:30:00Z",
+    updatedAt: "2024-07-28T11:00:00Z",
+  },
+  {
+    id: "req-3",
+    fromUserId: "user-1",
+    toUserId: "user-5",
+    fromUserSkillName: "Photography",
+    toUserSkillName: "Public Speaking",
+    status: "pending",
+    message: "Hi Ken, I'd love to learn from your public speaking expertise. I can offer photography lessons, we could even do a session outdoors.",
+    proposedSchedule: "Saturdays work best for me.",
+    createdAt: "2024-07-29T09:00:00Z",
+    updatedAt: "2024-07-29T09:00:00Z",
+  },
+  {
+    id: "req-4",
+    fromUserId: "user-1",
+    toUserId: "user-4",
+    fromUserSkillName: "React Development",
+    toUserSkillName: "Baking",
+    status: "rejected",
+    message: "I want to learn how to bake fancy cakes!",
+    proposedSchedule: "Any weekend morning.",
+    createdAt: "2024-07-26T18:00:00Z",
+    updatedAt: "2024-07-27T10:00:00Z",
+  },
+  {
+    id: "req-5",
+    fromUserId: "user-6",
+    toUserId: "user-1",
+    fromUserSkillName: "Indian Cooking",
+    toUserSkillName: "Photography",
+    status: "completed",
+    message: "Trade my cooking secrets for your photography secrets?",
+    proposedSchedule: "We can figure it out.",
+    createdAt: "2024-07-20T12:00:00Z",
+    updatedAt: "2024-07-22T16:00:00Z",
+  },
+];
