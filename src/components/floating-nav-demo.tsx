@@ -22,13 +22,6 @@ export function FloatingNavDemo() {
       link: "/requests",
       icon: <ArrowRightLeft className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
-    {
-      name: "Profile",
-      link: "/profile",
-      icon: (
-        <UserCircle className="h-4 w-4 text-neutral-500 dark:text-white" />
-      ),
-    },
   ];
 
   const rightItems = (

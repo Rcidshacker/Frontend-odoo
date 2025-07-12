@@ -121,7 +121,6 @@ export const FloatingNav = ({
       >
         <Link href="/" className="flex items-center gap-2 mr-4">
           <Rocket className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold text-primary hidden sm:inline">SkillSphere</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-lg font-medium">
@@ -149,14 +148,16 @@ export const FloatingNav = ({
             {rightItems}
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={currentUser?.avatar} alt={currentUser?.name} data-ai-hint="user avatar" />
-                  <AvatarFallback>
-                    {userInitials || <User />}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
+              <Link href="/profile" passHref>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={currentUser?.avatar} alt={currentUser?.name} data-ai-hint="user avatar" />
+                    <AvatarFallback>
+                      {userInitials || <User />}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </Link>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               {currentUser && (
