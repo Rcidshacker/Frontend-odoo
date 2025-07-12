@@ -7,23 +7,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { ArrowRightLeft } from "lucide-react";
+import { UserContext } from "@/context/user-context";
 
 interface RequestSwapModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   userToSwap: User;
-  currentUser: User;
 }
 
 export default function RequestSwapModal({
   isOpen,
   setIsOpen,
   userToSwap,
-  currentUser,
 }: RequestSwapModalProps) {
   const { toast } = useToast();
+  const { currentUser, addSwapRequest } = useContext(UserContext);
   const [yourSkill, setYourSkill] = useState("");
   const [theirSkill, setTheirSkill] = useState("");
   const [message, setMessage] = useState("");
@@ -39,13 +39,16 @@ export default function RequestSwapModal({
       return;
     }
 
-    // Mock submission
-    console.log({
-      from: currentUser.id,
-      to: userToSwap.id,
-      yourSkill,
-      theirSkill,
-      message,
+    addSwapRequest({
+      fromUserId: currentUser.id,
+      toUserId: userToSwap.id,
+      fromUserSkillName: yourSkill,
+      toUserSkillName: theirSkill,
+      status: 'pending',
+      message: message,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      id: `req-${Date.now()}`
     });
     
     toast({
@@ -57,6 +60,8 @@ export default function RequestSwapModal({
     setTheirSkill("");
     setMessage("");
   };
+
+  if (!currentUser) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

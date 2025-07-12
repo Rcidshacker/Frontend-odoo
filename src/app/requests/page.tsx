@@ -1,14 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
-import {
-  allSwapRequests,
-  SwapRequest,
-  currentUser,
-  users,
-  User,
-} from "@/lib/mock-data";
+import { useState, useContext } from "react";
+import { SwapRequest, User } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -42,6 +36,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { UserContext } from "@/context/user-context";
 
 const statusColors = {
   pending: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30",
@@ -52,13 +47,13 @@ const statusColors = {
 };
 
 export default function RequestsPage() {
-  const [requests, setRequests] = useState(allSwapRequests);
+  const { currentUser, users, allSwapRequests, setAllSwapRequests } = useContext(UserContext);
   const { toast } = useToast();
 
-  const incomingRequests = requests.filter(
+  const incomingRequests = allSwapRequests.filter(
     (req) => req.toUserId === currentUser.id
   );
-  const outgoingRequests = requests.filter(
+  const outgoingRequests = allSwapRequests.filter(
     (req) => req.fromUserId === currentUser.id
   );
 
@@ -66,7 +61,7 @@ export default function RequestsPage() {
     requestId: string,
     status: SwapRequest["status"]
   ) => {
-    setRequests((prev) =>
+    setAllSwapRequests((prev) =>
       prev.map((req) => (req.id === requestId ? { ...req, status } : req))
     );
     toast({

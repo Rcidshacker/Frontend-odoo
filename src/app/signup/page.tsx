@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useForm, useFieldArray, FormProvider, Control, UseFormReturn, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,6 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, PartyPopper, PlusCircle, Trash2 } from "lucide-react";
+import { UserContext } from "@/context/user-context";
+import type { User } from "@/lib/mock-data";
 
 const TOTAL_STEPS = 4;
 
@@ -198,6 +200,7 @@ export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
+  const { addUser, setCurrentUser, users } = useContext(UserContext);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -235,7 +238,23 @@ export default function SignupPage() {
   };
 
   const onSubmit = (data: SignupFormValues) => {
-    console.log("Form submitted!", data);
+    const initials = data.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    const newUser: User = {
+        id: `user-${users.length + 1}`,
+        name: data.name,
+        location: data.location || '',
+        bio: data.bio || '',
+        avatar: `https://placehold.co/100x100/A2AADB/FFF2E0?text=${initials}`,
+        skillsOffered: data.skillsOffered,
+        skillsWanted: data.skillsWanted,
+        availability: data.availability,
+        profileVisibility: "Public",
+        feedback: [],
+    };
+
+    addUser(newUser);
+    setCurrentUser(newUser);
+
     toast({
       title: "Welcome to SkillSphere!",
       description: "Your profile has been created successfully.",
@@ -279,5 +298,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
-    

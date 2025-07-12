@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { currentUser as initialUser, User, Skill } from "@/lib/mock-data";
+import { User, Skill } from "@/lib/mock-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserContext } from "@/context/user-context";
 
 const skillSchema = z.object({
   name: z.string().min(1, "Skill name is required."),
@@ -52,22 +53,28 @@ const skillCategories = ['Technology', 'Creative', 'Lifestyle', 'Business'] as c
 const proficiencyLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const;
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<User>(initialUser);
+  const { currentUser, setCurrentUser } = useContext(UserContext);
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: user.name,
-      location: user.location,
-      bio: user.bio,
-      skillsOffered: user.skillsOffered,
-      skillsWanted: user.skillsWanted,
-      availability: user.availability,
-      profileVisibility: user.profileVisibility === "Public",
-    },
   });
+  
+  useEffect(() => {
+    if (currentUser) {
+      form.reset({
+        name: currentUser.name,
+        location: currentUser.location,
+        bio: currentUser.bio,
+        skillsOffered: currentUser.skillsOffered,
+        skillsWanted: currentUser.skillsWanted,
+        availability: currentUser.availability,
+        profileVisibility: currentUser.profileVisibility === "Public",
+      });
+    }
+  }, [currentUser, form, isEditing]);
+
 
   const { fields: offeredFields, append: appendOffered, remove: removeOffered } = useFieldArray({
     control: form.control,
@@ -81,7 +88,7 @@ export default function ProfilePage() {
 
   const onSubmit = (data: ProfileFormValues) => {
     const updatedUser: User = {
-      ...user,
+      ...currentUser,
       name: data.name,
       location: data.location || "",
       bio: data.bio || "",
@@ -90,7 +97,7 @@ export default function ProfilePage() {
       availability: data.availability,
       profileVisibility: data.profileVisibility ? "Public" : "Private",
     };
-    setUser(updatedUser);
+    setCurrentUser(updatedUser);
     setIsEditing(false);
     toast({
       title: "Profile Updated",
@@ -118,26 +125,26 @@ export default function ProfilePage() {
       <CardHeader>
         <div className="flex items-center justify-between">
             <CardTitle className="text-2xl text-primary">Your Profile</CardTitle>
-            <Button onClick={() => { form.reset(user as any); setIsEditing(true); }}><Edit className="mr-2 h-4 w-4" /> Edit Profile</Button>
+            <Button onClick={() => setIsEditing(true)}><Edit className="mr-2 h-4 w-4" /> Edit Profile</Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center gap-4">
           <Avatar className="h-20 w-20 border-2 border-primary">
-            <AvatarImage src={user.avatar} alt={user.name} data-ai-hint="profile avatar" />
+            <AvatarImage src={currentUser.avatar} alt={currentUser.name} data-ai-hint="profile avatar" />
             <AvatarFallback><UserIcon /></AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="text-2xl font-bold">{user.name}</h2>
-            {user.location && <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> {user.location}</p>}
+            <h2 className="text-2xl font-bold">{currentUser.name}</h2>
+            {currentUser.location && <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> {currentUser.location}</p>}
           </div>
         </div>
-        {user.bio && (
+        {currentUser.bio && (
             <>
                 <Separator />
                 <div>
                     <h3 className="font-semibold text-lg mb-2">About Me</h3>
-                    <p className="text-muted-foreground">{user.bio}</p>
+                    <p className="text-muted-foreground">{currentUser.bio}</p>
                 </div>
             </>
         )}
@@ -145,13 +152,13 @@ export default function ProfilePage() {
         <div className="space-y-4">
             <h3 className="font-semibold text-lg flex items-center gap-2"><Briefcase className="h-5 w-5 text-primary" /> Skills Offered</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {user.skillsOffered.map((skill, index) => <SkillCard key={index} skill={skill} offered />)}
+                {currentUser.skillsOffered.map((skill, index) => <SkillCard key={index} skill={skill} offered />)}
             </div>
         </div>
         <div className="space-y-4">
             <h3 className="font-semibold text-lg flex items-center gap-2"><Target className="h-5 w-5 text-primary" /> Skills Wanted</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {user.skillsWanted.map((skill, index) => <SkillCard key={index} skill={skill} offered={false} />)}
+                {currentUser.skillsWanted.map((skill, index) => <SkillCard key={index} skill={skill} offered={false} />)}
             </div>
         </div>
         <Separator />
@@ -159,19 +166,19 @@ export default function ProfilePage() {
             <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2"><Calendar className="h-5 w-5 text-primary" /> Availability</h3>
                 <div className="flex flex-wrap gap-2">
-                    {user.availability.map(avail => <Badge key={avail} variant="outline" className="capitalize">{avail}</Badge>)}
+                    {currentUser.availability.map(avail => <Badge key={avail} variant="outline" className="capitalize">{avail}</Badge>)}
                 </div>
             </div>
             <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2"><Eye className="h-5 w-5 text-primary" /> Profile Visibility</h3>
-                <p>{user.profileVisibility}</p>
+                <p>{currentUser.profileVisibility}</p>
             </div>
         </div>
         <Separator />
         <div>
           <h3 className="font-semibold text-lg mb-4 flex items-center gap-2"><Star className="h-5 w-5 text-primary" /> Ratings and Feedback</h3>
           <div className="space-y-4">
-            {user.feedback.map((fb, index) => (
+            {currentUser.feedback.map((fb, index) => (
               <div key={index} className="border-l-4 border-accent pl-4">
                 <div className="flex items-center">
                   <p className="font-semibold">{fb.from}</p>
@@ -312,6 +319,16 @@ export default function ProfilePage() {
         </CardContent>
     </Card>
   );
+
+  if (!currentUser) {
+    return (
+        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+            <div className="max-w-4xl mx-auto text-center">
+                <p>Loading profile...</p>
+            </div>
+        </div>
+    )
+  }
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">

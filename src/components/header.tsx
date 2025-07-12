@@ -1,5 +1,6 @@
 "use client";
 
+import { useContext } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,8 +14,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Rocket, User } from "lucide-react";
+import { UserContext } from "@/context/user-context";
+import { initialUser } from "@/lib/mock-data";
 
 export default function Header() {
+  const { currentUser, setCurrentUser } = useContext(UserContext);
+
+  const handleLogout = () => {
+    // In a real app, this would be a proper logout flow.
+    // For now, we'll just reset to the initial mock user.
+    setCurrentUser(initialUser);
+  };
+  
+  const userInitials = currentUser?.name.split(' ').map(n => n[0]).join('').toUpperCase() || '';
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between mx-auto">
@@ -49,34 +62,36 @@ export default function Header() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="https://placehold.co/100x100/A2AADB/FFF2E0?text=AD" alt="User" data-ai-hint="user avatar" />
+                  <AvatarImage src={currentUser?.avatar} alt={currentUser?.name} data-ai-hint="user avatar" />
                   <AvatarFallback>
-                    <User />
+                    {userInitials || <User />}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Alex Doe</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    swapper@skillsphere.com
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/profile">Profile</Link>
-              </DropdownMenuItem>
-               <DropdownMenuItem asChild>
-                <Link href="/requests">Swap Requests</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled>Settings</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/login">Log out</Link>
-              </DropdownMenuItem>
+              {currentUser && (
+                <>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{currentUser.name}</p>
+                      {/* Note: email isn't part of the User model from mock-data, so we can't display it here without changes */}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/requests">Swap Requests</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled>Settings</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/login" onClick={handleLogout}>Log out</Link>
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 

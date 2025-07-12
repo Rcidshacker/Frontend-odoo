@@ -1,25 +1,29 @@
 "use client";
 
 import * as React from "react";
-import { useState, useMemo } from "react";
-import { User, users, currentUser } from "@/lib/mock-data";
+import { useState, useMemo, useContext } from "react";
+import { User } from "@/lib/mock-data";
 import UserCard from "@/components/user-card";
 import PaginationControls from "@/components/pagination-controls";
 import RequestSwapModal from "@/components/request-swap-modal";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
+import { UserContext } from "@/context/user-context";
 
 const ITEMS_PER_PAGE = 6;
 
 export default function Home() {
+  const { users, currentUser } = useContext(UserContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const otherUsers = users.filter((user) => user.id !== currentUser.id);
+  const otherUsers = useMemo(() => {
+    return users.filter((user) => user.id !== currentUser.id);
+  }, [users, currentUser]);
 
   const filteredUsers = useMemo(() => {
     return otherUsers
@@ -122,7 +126,6 @@ export default function Home() {
           isOpen={isModalOpen}
           setIsOpen={setIsModalOpen}
           userToSwap={selectedUser}
-          currentUser={currentUser}
         />
       )}
     </div>

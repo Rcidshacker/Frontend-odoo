@@ -247,7 +247,7 @@ export const users: User[] = [
   }
 ];
 
-export const currentUser = users[0];
+export const initialUser = users[0];
 
 export const allSwapRequests: SwapRequest[] = [
   {
