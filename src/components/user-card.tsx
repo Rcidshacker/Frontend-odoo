@@ -18,7 +18,7 @@ export default function UserCard({ user, onRequestSwap }: UserCardProps) {
     
   return (
     <div className="relative h-full w-full rounded-lg bg-card text-card-foreground shadow-sm border p-px">
-        <GlowingEffect proximity={80} spread={120} blur={24}>
+        <GlowingEffect disabled={false} glow={true}>
             <div className="relative z-10 h-full w-full rounded-[inherit] bg-card p-4 flex flex-col">
                 <CardHeader className="flex flex-row items-center gap-4 p-2 pt-0">
                     <Avatar className="h-16 w-16 border-2 border-secondary">
