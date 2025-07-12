@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { UserProvider } from '@/context/user-context';
 import { FloatingNavDemo } from '@/components/floating-nav-demo';
 import { ChatWidget } from '@/components/chat-widget';
+import { NotificationsDropdown } from '@/components/notifications-dropdown';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -28,6 +29,9 @@ export default function RootLayout({
       </head>
       <body className="bg-background font-body antialiased">
         <UserProvider>
+          <div className="fixed top-4 right-6 z-50">
+             <NotificationsDropdown />
+          </div>
           <FloatingNavDemo />
           <main className="pt-20">{children}</main>
           <ChatWidget />
