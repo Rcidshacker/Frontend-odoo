@@ -1,6 +1,7 @@
 
 "use client";
 import React, { useState, useContext, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { UserContext } from '@/context/user-context';
 import { Message, User } from '@/lib/mock-data';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 export function ChatWidget() {
+    const pathname = usePathname();
     const { currentUser, users, conversations, setConversations } = useContext(UserContext);
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
@@ -56,6 +58,10 @@ export function ChatWidget() {
         // This is a mock implementation. In a real app, you'd check a `read` status.
         return count + (convo.id.includes('new') ? 1 : 0);
     }, 0);
+
+    if (pathname === '/chat') {
+        return null;
+    }
 
     if (!isOpen) {
         return (
@@ -172,4 +178,3 @@ export function ChatWidget() {
         </Card>
     );
 }
-
