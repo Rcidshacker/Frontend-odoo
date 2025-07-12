@@ -2,6 +2,7 @@
 
 import { useContext, useMemo } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,26 +34,26 @@ export default function Header() {
   
   const userInitials = currentUser?.name.split(' ').map(n => n[0]).join('').toUpperCase() || '';
 
-  const NavLinks = () => (
+  const NavLinks = ({ className }: { className?: string}) => (
     <>
       <Link
         href="/"
-        className="transition-colors hover:text-primary"
+        className={className}
       >
         Home
       </Link>
       <Link
         href="/requests"
-        className="flex items-center gap-2 transition-colors hover:text-primary"
+        className={`flex items-center gap-2 ${className}`}
       >
         Requests
         {pendingRequestCount > 0 && (
-          <Badge variant="destructive" className="h-6 w-6 flex items-center justify-center p-0">{pendingRequestCount}</Badge>
+          <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-xs">{pendingRequestCount}</Badge>
         )}
       </Link>
       <Link
         href="/profile"
-        className="transition-colors hover:text-primary"
+        className={className}
       >
         Profile
       </Link>
@@ -60,15 +61,19 @@ export default function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-20 items-center justify-between mx-auto">
+    <motion.header 
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="sticky top-4 inset-x-0 max-w-4xl mx-auto z-50">
+      <div className="flex items-center justify-between w-full h-20 px-8 rounded-2xl border border-secondary/50 bg-background/80 backdrop-blur-lg shadow-lg">
         <Link href="/" className="flex items-center gap-2">
           <Rocket className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold text-primary">SkillSphere</span>
+          <span className="text-2xl font-bold text-primary hidden sm:inline">SkillSphere</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-lg font-medium">
-          <NavLinks />
+          <NavLinks className="transition-colors hover:text-primary" />
         </nav>
 
         <div className="flex items-center gap-4">
@@ -89,7 +94,6 @@ export default function Header() {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">{currentUser.name}</p>
-                      {/* Note: email isn't part of the User model from mock-data, so we can't display it here without changes */}
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -101,8 +105,8 @@ export default function Header() {
                   </DropdownMenuItem>
                   <DropdownMenuItem disabled>Settings</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/login" onClick={handleLogout}>Log out</Link>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <Link href="/login">Log out</Link>
                   </DropdownMenuItem>
                 </>
               )}
@@ -119,13 +123,13 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right">
                 <div className="flex flex-col gap-6 pt-10 text-lg font-medium">
-                    <NavLinks />
+                    <NavLinks className="text-foreground"/>
                 </div>
               </SheetContent>
             </Sheet>
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
