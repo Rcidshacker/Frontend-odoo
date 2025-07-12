@@ -66,7 +66,7 @@ export function ChatWidget() {
     if (!isOpen) {
         return (
             <Button
-                className="fixed bottom-5 right-5 h-16 w-16 rounded-full shadow-lg"
+                className="fixed bottom-5 right-5 h-16 w-16 rounded-full shadow-lg z-50"
                 onClick={() => setIsOpen(true)}
             >
                 <MessageSquare className="h-8 w-8" />
@@ -82,7 +82,7 @@ export function ChatWidget() {
     if (isMinimized) {
         return (
              <Button
-                className="fixed bottom-5 right-5 h-16 w-16 rounded-full shadow-lg"
+                className="fixed bottom-5 right-5 h-16 w-16 rounded-full shadow-lg z-50"
                 onClick={() => setIsMinimized(false)}
             >
                 <MessageSquare className="h-8 w-8" />
