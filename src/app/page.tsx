@@ -24,7 +24,9 @@ export default function Home() {
   const filteredUsers = useMemo(() => {
     return otherUsers
       .filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.skillsOffered.some(skill => skill.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        user.skillsWanted.some(skill => skill.name.toLowerCase().includes(searchTerm.toLowerCase()))
       )
       .filter((user) => {
         if (availabilityFilter === "all") return true;
@@ -59,7 +61,7 @@ export default function Home() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search by name..."
+            placeholder="Search by name or skill..."
             className="w-full pl-10 bg-white dark:bg-muted"
             value={searchTerm}
             onChange={(e) => {
@@ -83,6 +85,7 @@ export default function Home() {
             <SelectItem value="weekends">Weekends</SelectItem>
             <SelectItem value="evenings">Evenings</SelectItem>
             <SelectItem value="weekdays">Weekdays</SelectItem>
+            <SelectItem value="flexible">Flexible</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -2,13 +2,13 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { currentUser as initialUser, User } from "@/lib/mock-data";
+import { currentUser as initialUser, User, Skill } from "@/lib/mock-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Save, Star, User as UserIcon, MapPin, Briefcase, Target, Calendar, Eye } from "lucide-react";
+import { Edit, Save, Star, User as UserIcon, MapPin, Briefcase, Target, Calendar, Eye, Trash2, PlusCircle } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -28,18 +28,28 @@ import {
 } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+const skillSchema = z.object({
+  name: z.string().min(1, "Skill name is required."),
+  category: z.enum(['Technology', 'Creative', 'Lifestyle', 'Business']),
+  description: z.string().optional(),
+  proficiency: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Expert']).optional(),
+});
+
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   location: z.string().optional(),
-  skillsOffered: z.string(),
-  skillsWanted: z.string(),
+  bio: z.string().optional(),
+  skillsOffered: z.array(skillSchema),
+  skillsWanted: z.array(skillSchema.omit({ proficiency: true })),
   availability: z.array(z.string()).nonempty("Please select at least one availability option."),
   profileVisibility: z.boolean(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-const availabilityOptions = ["weekends", "evenings", "weekdays", "flexible"];
+const availabilityOptions = ["weekdays", "evenings", "weekends", "flexible"];
+const skillCategories = ['Technology', 'Creative', 'Lifestyle', 'Business'] as const;
+const proficiencyLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const;
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User>(initialUser);
@@ -51,11 +61,22 @@ export default function ProfilePage() {
     defaultValues: {
       name: user.name,
       location: user.location,
-      skillsOffered: user.skillsOffered.join(", "),
-      skillsWanted: user.skillsWanted.join(", "),
+      bio: user.bio,
+      skillsOffered: user.skillsOffered,
+      skillsWanted: user.skillsWanted,
       availability: user.availability,
       profileVisibility: user.profileVisibility === "Public",
     },
+  });
+
+  const { fields: offeredFields, append: appendOffered, remove: removeOffered } = useFieldArray({
+    control: form.control,
+    name: "skillsOffered",
+  });
+
+  const { fields: wantedFields, append: appendWanted, remove: removeWanted } = useFieldArray({
+    control: form.control,
+    name: "skillsWanted",
   });
 
   const onSubmit = (data: ProfileFormValues) => {
@@ -63,8 +84,9 @@ export default function ProfilePage() {
       ...user,
       name: data.name,
       location: data.location || "",
-      skillsOffered: data.skillsOffered.split(",").map((s) => s.trim()).filter(Boolean),
-      skillsWanted: data.skillsWanted.split(",").map((s) => s.trim()).filter(Boolean),
+      bio: data.bio || "",
+      skillsOffered: data.skillsOffered,
+      skillsWanted: data.skillsWanted,
       availability: data.availability,
       profileVisibility: data.profileVisibility ? "Public" : "Private",
     };
@@ -76,12 +98,27 @@ export default function ProfilePage() {
     });
   };
 
+  const SkillCard = ({ skill, offered }: { skill: Skill, offered: boolean }) => (
+      <div className="p-4 rounded-lg border bg-card/50 w-full">
+          <div className="flex justify-between items-start">
+              <div>
+                  <h4 className="font-bold">{skill.name}</h4>
+                  <Badge variant="outline" className="mt-1">{skill.category}</Badge>
+              </div>
+              {offered && skill.proficiency && (
+                  <Badge variant="secondary">{skill.proficiency}</Badge>
+              )}
+          </div>
+          {skill.description && <p className="text-sm text-muted-foreground mt-2">{skill.description}</p>}
+      </div>
+  );
+
   const ProfileView = () => (
     <Card className="w-full">
       <CardHeader>
         <div className="flex items-center justify-between">
             <CardTitle className="text-2xl text-primary">Your Profile</CardTitle>
-            <Button onClick={() => setIsEditing(true)}><Edit className="mr-2 h-4 w-4" /> Edit Profile</Button>
+            <Button onClick={() => { form.reset(user as any); setIsEditing(true); }}><Edit className="mr-2 h-4 w-4" /> Edit Profile</Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -95,17 +132,26 @@ export default function ProfilePage() {
             {user.location && <p className="text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> {user.location}</p>}
           </div>
         </div>
+        {user.bio && (
+            <>
+                <Separator />
+                <div>
+                    <h3 className="font-semibold text-lg mb-2">About Me</h3>
+                    <p className="text-muted-foreground">{user.bio}</p>
+                </div>
+            </>
+        )}
         <Separator />
         <div className="space-y-4">
             <h3 className="font-semibold text-lg flex items-center gap-2"><Briefcase className="h-5 w-5 text-primary" /> Skills Offered</h3>
-            <div className="flex flex-wrap gap-2">
-                {user.skillsOffered.map(skill => <Badge key={skill} variant="secondary" className="text-base py-1 px-3">{skill}</Badge>)}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {user.skillsOffered.map((skill, index) => <SkillCard key={index} skill={skill} offered />)}
             </div>
         </div>
         <div className="space-y-4">
             <h3 className="font-semibold text-lg flex items-center gap-2"><Target className="h-5 w-5 text-primary" /> Skills Wanted</h3>
-            <div className="flex flex-wrap gap-2">
-                {user.skillsWanted.map(skill => <Badge key={skill} variant="secondary" className="text-base py-1 px-3">{skill}</Badge>)}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {user.skillsWanted.map((skill, index) => <SkillCard key={index} skill={skill} offered={false} />)}
             </div>
         </div>
         <Separator />
@@ -164,23 +210,56 @@ export default function ProfilePage() {
                         <FormMessage />
                     </FormItem>
                 )} />
-                <FormField control={form.control} name="skillsOffered" render={({ field }) => (
+                <FormField control={form.control} name="bio" render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Skills Offered</FormLabel>
-                        <FormControl><Textarea {...field} /></FormControl>
-                        <FormDescription>Enter skills separated by commas.</FormDescription>
+                        <FormLabel>Bio</FormLabel>
+                        <FormControl><Textarea {...field} placeholder="Tell us a little about yourself" /></FormControl>
                         <FormMessage />
                     </FormItem>
                 )} />
-                <FormField control={form.control} name="skillsWanted" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Skills Wanted</FormLabel>
-                        <FormControl><Textarea {...field} /></FormControl>
-                        <FormDescription>Enter skills separated by commas.</FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )} />
-                <FormField control={form.control} name="availability" render={({ field }) => (
+
+                <div className="space-y-4">
+                    <Label className="text-lg font-semibold">Skills Offered</Label>
+                    {offeredFields.map((field, index) => (
+                        <div key={field.id} className="p-4 border rounded-md space-y-4 relative">
+                            <FormField control={form.control} name={`skillsOffered.${index}.name`} render={({ field }) => (
+                                <FormItem><FormLabel>Skill Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <FormField control={form.control} name={`skillsOffered.${index}.category`} render={({ field }) => (
+                                <FormItem><FormLabel>Category</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl><SelectContent>{skillCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                            )} />
+                            <FormField control={form.control} name={`skillsOffered.${index}.proficiency`} render={({ field }) => (
+                                <FormItem><FormLabel>Proficiency</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select your proficiency" /></SelectTrigger></FormControl><SelectContent>{proficiencyLevels.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                            )} />
+                            <FormField control={form.control} name={`skillsOffered.${index}.description`} render={({ field }) => (
+                                <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => removeOffered(index)}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                    ))}
+                    <Button type="button" variant="outline" onClick={() => appendOffered({ name: "", category: "Technology", proficiency: "Beginner" })}><PlusCircle className="mr-2 h-4 w-4" /> Add Skill to Offer</Button>
+                </div>
+                
+                <div className="space-y-4">
+                    <Label className="text-lg font-semibold">Skills Wanted</Label>
+                    {wantedFields.map((field, index) => (
+                        <div key={field.id} className="p-4 border rounded-md space-y-4 relative">
+                            <FormField control={form.control} name={`skillsWanted.${index}.name`} render={({ field }) => (
+                                <FormItem><FormLabel>Skill Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <FormField control={form.control} name={`skillsWanted.${index}.category`} render={({ field }) => (
+                                <FormItem><FormLabel>Category</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl><SelectContent>{skillCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                            )} />
+                             <FormField control={form.control} name={`skillsWanted.${index}.description`} render={({ field }) => (
+                                <FormItem><FormLabel>Description (Why you want to learn it)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => removeWanted(index)}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                    ))}
+                    <Button type="button" variant="outline" onClick={() => appendWanted({ name: "", category: "Technology" })}><PlusCircle className="mr-2 h-4 w-4" /> Add Skill to Learn</Button>
+                </div>
+
+                <FormField control={form.control} name="availability" render={() => (
                   <FormItem>
                     <FormLabel>Availability</FormLabel>
                     <Controller
@@ -189,22 +268,23 @@ export default function ProfilePage() {
                         render={({ field }) => (
                             <div className="flex flex-wrap gap-4">
                                 {availabilityOptions.map((option) => (
-                                    <div key={option} className="flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            id={option}
-                                            value={option}
-                                            checked={field.value?.includes(option)}
-                                            onChange={(e) => {
-                                                const newAvailability = e.target.checked
-                                                    ? [...(field.value || []), option]
-                                                    : field.value?.filter((v) => v !== option);
-                                                field.onChange(newAvailability);
-                                            }}
-                                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                        />
-                                        <label htmlFor={option} className="capitalize">{option}</label>
-                                    </div>
+                                    <FormItem key={option} className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <input
+                                                type="checkbox"
+                                                id={option}
+                                                checked={field.value?.includes(option)}
+                                                onChange={(e) => {
+                                                    const newAvailability = e.target.checked
+                                                        ? [...(field.value || []), option]
+                                                        : field.value?.filter((v) => v !== option);
+                                                    field.onChange(newAvailability);
+                                                }}
+                                                className="h-4 w-4 mt-1 rounded border-gray-300 text-primary focus:ring-primary"
+                                            />
+                                        </FormControl>
+                                        <label htmlFor={option} className="capitalize font-normal">{option}</label>
+                                    </FormItem>
                                 ))}
                             </div>
                         )}

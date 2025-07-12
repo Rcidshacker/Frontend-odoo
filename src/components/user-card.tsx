@@ -28,7 +28,7 @@ export default function UserCard({ user, onRequestSwap }: UserCardProps) {
           <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm text-primary"><Briefcase className="h-4 w-4"/> Offers</h4>
           <div className="flex flex-wrap gap-2">
             {user.skillsOffered.slice(0, 3).map((skill) => (
-              <Badge key={skill} variant="secondary">{skill}</Badge>
+              <Badge key={skill.name} variant="secondary">{skill.name}</Badge>
             ))}
             {user.skillsOffered.length > 3 && <Badge variant="outline">+{user.skillsOffered.length - 3} more</Badge>}
           </div>
@@ -37,7 +37,7 @@ export default function UserCard({ user, onRequestSwap }: UserCardProps) {
           <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm text-primary"><Target className="h-4 w-4"/> Wants</h4>
           <div className="flex flex-wrap gap-2">
             {user.skillsWanted.slice(0, 3).map((skill) => (
-              <Badge key={skill} variant="outline">{skill}</Badge>
+              <Badge key={skill.name} variant="outline">{skill.name}</Badge>
             ))}
             {user.skillsWanted.length > 3 && <Badge variant="outline">+{user.skillsWanted.length - 3} more</Badge>}
           </div>

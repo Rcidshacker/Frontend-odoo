@@ -77,20 +77,20 @@ export default function RequestSwapModal({
                 </SelectTrigger>
                 <SelectContent>
                   {currentUser.skillsOffered.map((skill) => (
-                    <SelectItem key={skill} value={skill}>{skill}</SelectItem>
+                    <SelectItem key={skill.name} value={skill.name}>{skill.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="their-skill">Choose one of their wanted skills</Label>
+              <Label htmlFor="their-skill">Choose one of their offered skills</Label>
               <Select value={theirSkill} onValueChange={setTheirSkill}>
                 <SelectTrigger id="their-skill">
                   <SelectValue placeholder="Select a skill to request" />
                 </SelectTrigger>
                 <SelectContent>
-                  {userToSwap.skillsOffered.map((skill) => ( // Note: should be their skillsOffered, as you request what they offer.
-                    <SelectItem key={skill} value={skill}>{skill}</SelectItem>
+                  {userToSwap.skillsOffered.map((skill) => (
+                    <SelectItem key={skill.name} value={skill.name}>{skill.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
