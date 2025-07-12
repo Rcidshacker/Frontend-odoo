@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,17 +16,48 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Rocket, User } from "lucide-react";
 import { UserContext } from "@/context/user-context";
 import { initialUser } from "@/lib/mock-data";
+import { Badge } from "@/components/ui/badge";
 
 export default function Header() {
-  const { currentUser, setCurrentUser } = useContext(UserContext);
+  const { currentUser, setCurrentUser, allSwapRequests } = useContext(UserContext);
+
+  const pendingRequestCount = useMemo(() => {
+    return allSwapRequests.filter(
+      (req) => req.toUserId === currentUser.id && req.status === "pending"
+    ).length;
+  }, [allSwapRequests, currentUser]);
 
   const handleLogout = () => {
-    // In a real app, this would be a proper logout flow.
-    // For now, we'll just reset to the initial mock user.
     setCurrentUser(initialUser);
   };
   
   const userInitials = currentUser?.name.split(' ').map(n => n[0]).join('').toUpperCase() || '';
+
+  const NavLinks = () => (
+    <>
+      <Link
+        href="/"
+        className="transition-colors hover:text-primary"
+      >
+        Home
+      </Link>
+      <Link
+        href="/requests"
+        className="flex items-center gap-2 transition-colors hover:text-primary"
+      >
+        Requests
+        {pendingRequestCount > 0 && (
+          <Badge variant="destructive" className="h-6 w-6 flex items-center justify-center p-0">{pendingRequestCount}</Badge>
+        )}
+      </Link>
+      <Link
+        href="/profile"
+        className="transition-colors hover:text-primary"
+      >
+        Profile
+      </Link>
+    </>
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -37,24 +68,7 @@ export default function Header() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-lg font-medium">
-          <Link
-            href="/"
-            className="transition-colors hover:text-primary"
-          >
-            Home
-          </Link>
-          <Link
-            href="/requests"
-            className="transition-colors hover:text-primary"
-          >
-            Requests
-          </Link>
-          <Link
-            href="/profile"
-            className="transition-colors hover:text-primary"
-          >
-            Profile
-          </Link>
+          <NavLinks />
         </nav>
 
         <div className="flex items-center gap-4">
@@ -104,25 +118,8 @@ export default function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right">
-                <div className="flex flex-col gap-6 pt-10">
-                    <Link
-                        href="/"
-                        className="text-lg font-medium hover:text-primary"
-                    >
-                        Home
-                    </Link>
-                    <Link
-                        href="/requests"
-                        className="text-lg font-medium hover:text-primary"
-                    >
-                        Requests
-                    </Link>
-                    <Link
-                        href="/profile"
-                        className="text-lg font-medium hover:text-primary"
-                    >
-                        Profile
-                    </Link>
+                <div className="flex flex-col gap-6 pt-10 text-lg font-medium">
+                    <NavLinks />
                 </div>
               </SheetContent>
             </Sheet>

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { User, SwapRequest, users as initialUsers, allSwapRequests as initialSwapRequests, initialUser } from "@/lib/mock-data";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserContextType {
     users: User[];
@@ -24,6 +25,7 @@ export const UserContext = React.createContext<UserContextType>({
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+    const { toast } = useToast();
     const [users, setUsers] = React.useState<User[]>(initialUsers);
     const [currentUser, setCurrentUserState] = React.useState<User>(initialUser);
     const [allSwapRequests, setAllSwapRequests] = React.useState<SwapRequest[]>(initialSwapRequests);
@@ -43,6 +45,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     const addSwapRequest = (request: SwapRequest) => {
         setAllSwapRequests(prev => [...prev, request]);
+
+        // Simulate a real-time notification for the receiving user
+        if (request.toUserId === currentUser.id) {
+            const fromUser = users.find(u => u.id === request.fromUserId);
+            toast({
+                title: "New Swap Request!",
+                description: `${fromUser?.name || 'Someone'} wants to swap skills with you.`,
+            });
+        }
     };
 
     return (
