@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { SwapRequest, User } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,10 +71,18 @@ export default function RequestsPage() {
   };
 
   const RequestCard = ({ request, type }: { request: SwapRequest; type: "incoming" | "outgoing" }) => {
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
     const otherUser = users.find(
       (u) =>
         u.id === (type === "incoming" ? request.fromUserId : request.toUserId)
     );
+
+    useEffect(() => {
+        if(request.createdAt){
+            setFormattedDate(new Date(request.createdAt).toLocaleDateString());
+        }
+    }, [request.createdAt]);
+
 
     if (!otherUser) return null;
 
@@ -119,7 +127,7 @@ export default function RequestsPage() {
               </CardTitle>
               <CardDescription className="mt-2 flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4" />
-                {new Date(request.createdAt).toLocaleDateString()}
+                {formattedDate || '...'}
               </CardDescription>
             </div>
             <Badge className={`capitalize ${statusColors[request.status]}`}>
