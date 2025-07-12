@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useContext, useMemo } from "react";
 import {
@@ -27,6 +28,7 @@ import { Menu, Rocket, User } from "lucide-react";
 
 export const FloatingNav = ({
   navItems,
+  rightItems,
   className,
 }: {
   navItems: {
@@ -34,6 +36,7 @@ export const FloatingNav = ({
     link: string;
     icon?: JSX.Element;
   }[];
+  rightItems?: React.ReactNode;
   className?: string;
 }) => {
   const { scrollYProgress } = useScroll();
@@ -55,13 +58,19 @@ export const FloatingNav = ({
     }
   });
   
-  const { currentUser, setCurrentUser, allSwapRequests } = useContext(UserContext);
+  const { currentUser, setCurrentUser, allSwapRequests, conversations } = useContext(UserContext);
 
   const pendingRequestCount = useMemo(() => {
     return allSwapRequests.filter(
       (req) => req.toUserId === currentUser.id && req.status === "pending"
     ).length;
   }, [allSwapRequests, currentUser]);
+
+  const unreadMessagesCount = useMemo(() => {
+    // Mock logic for unread messages
+    return conversations.filter(c => c.id.includes('new-convo')).length;
+  }, [conversations]);
+
 
   const handleLogout = () => {
     setCurrentUser(initialUser);
@@ -83,6 +92,9 @@ export const FloatingNav = ({
         <span className="hidden sm:block text-sm">{navItem.name}</span>
         {navItem.name === "Requests" && pendingRequestCount > 0 && (
            <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-xs">{pendingRequestCount}</Badge>
+        )}
+        {navItem.name === "Messages" && unreadMessagesCount > 0 && (
+           <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-xs">{unreadMessagesCount}</Badge>
         )}
       </Link>
     ))
@@ -126,11 +138,15 @@ export const FloatingNav = ({
                {navItem.name === "Requests" && pendingRequestCount > 0 && (
                 <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-xs">{pendingRequestCount}</Badge>
               )}
+              {navItem.name === "Messages" && unreadMessagesCount > 0 && (
+                <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-xs">{unreadMessagesCount}</Badge>
+              )}
             </Link>
           ))}
         </nav>
         
         <div className="flex items-center gap-2">
+            {rightItems}
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -153,6 +169,9 @@ export const FloatingNav = ({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                   <DropdownMenuItem asChild>
+                    <Link href="/chat">Messages</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/requests">Swap Requests</Link>

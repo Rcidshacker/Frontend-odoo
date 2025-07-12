@@ -1,3 +1,4 @@
+
 export interface Skill {
   name: string;
   category: "Technology" | "Creative" | "Lifestyle" | "Business";
@@ -24,12 +25,37 @@ export interface SwapRequest {
   fromUserId: string;
   toUserId: string;
   fromUserSkillName: string;
-  toUserSkillName: string;
+  toUserSkillName:string;
   status: "pending" | "accepted" | "rejected" | "completed" | "canceled";
   message?: string;
   proposedSchedule?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Message {
+    id: string;
+    senderId: string;
+    text: string;
+    timestamp: string;
+}
+
+export interface Conversation {
+    id: string;
+    participantIds: string[];
+    messages: Message[];
+}
+
+export interface Notification {
+    id: string;
+    userId: string;
+    fromUserId: string;
+    type: 'request' | 'feedback' | 'message';
+    title: string;
+    description: string;
+    link: string;
+    read: boolean;
+    createdAt: string;
 }
 
 export const users: User[] = [
@@ -311,3 +337,65 @@ export const allSwapRequests: SwapRequest[] = [
     updatedAt: "2024-07-22T16:00:00Z",
   },
 ];
+
+export const conversations: Conversation[] = [
+    {
+        id: 'convo-1',
+        participantIds: ['user-1', 'user-2'],
+        messages: [
+            { id: 'msg-1', senderId: 'user-2', text: 'Hey Alex! Saw your swap request. I can definitely teach you some creative writing.', timestamp: '2024-07-28T10:05:00Z'},
+            { id: 'msg-2', senderId: 'user-1', text: 'Awesome, Jane! I\'m really looking forward to it. Let me know when you\'re free to chat about the React project.', timestamp: '2024-07-28T10:10:00Z'},
+        ]
+    },
+    {
+        id: 'convo-2',
+        participantIds: ['user-1', 'user-3'],
+        messages: [
+            { id: 'msg-3', senderId: 'user-3', text: 'Hey, I accepted your request. I can do Saturday mornings for guitar lessons. Does that work?', timestamp: '2024-07-28T11:05:00Z'},
+        ]
+    },
+     {
+        id: 'convo-3-new',
+        participantIds: ['user-1', 'user-6'],
+        messages: [
+            { id: 'msg-4', senderId: 'user-6', text: 'That was a great swap! Thanks for the photography tips.', timestamp: '2024-07-22T17:00:00Z'},
+            { id: 'msg-5', senderId: 'user-1', text: 'You too! My family loved the chicken tikka masala.', timestamp: '2024-07-22T17:05:00Z'},
+        ]
+    }
+];
+
+export const notifications: Notification[] = [
+    {
+        id: 'notif-1',
+        userId: 'user-1',
+        fromUserId: 'user-2',
+        type: 'request',
+        title: 'New Swap Request',
+        description: 'Jane Smith wants to learn React Development.',
+        link: '/requests',
+        read: true,
+        createdAt: '2024-07-28T10:00:00Z'
+    },
+    {
+        id: 'notif-2',
+        userId: 'user-1',
+        fromUserId: 'user-3',
+        type: 'request',
+        title: 'Request Accepted',
+        description: 'Bob Johnson accepted your request for Guitar Lessons.',
+        link: '/requests',
+        read: false,
+        createdAt: '2024-07-28T11:00:00Z'
+    },
+     {
+        id: 'notif-3',
+        userId: 'user-1',
+        fromUserId: 'user-6',
+        type: 'feedback',
+        title: 'New Feedback Received',
+        description: 'Priya Patel left you 5-star feedback!',
+        link: '/profile',
+        read: false,
+        createdAt: '2024-07-22T18:00:00Z'
+    }
+]

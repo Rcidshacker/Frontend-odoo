@@ -1,9 +1,11 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { Inter } from 'next/font/google';
 import { Toaster } from '@/components/ui/toaster';
 import { UserProvider } from '@/context/user-context';
 import { FloatingNavDemo } from '@/components/floating-nav-demo';
+import { ChatWidget } from '@/components/chat-widget';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -28,6 +30,7 @@ export default function RootLayout({
         <UserProvider>
           <FloatingNavDemo />
           <main className="pt-20">{children}</main>
+          <ChatWidget />
           <Toaster />
         </UserProvider>
       </body>
