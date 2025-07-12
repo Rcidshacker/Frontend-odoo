@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRightLeft, Briefcase, Target, User as UserIcon } from "lucide-react";
+import { GlowingCard } from "./ui/glowing-card";
 
 interface UserCardProps {
   user: User;
@@ -12,7 +13,10 @@ interface UserCardProps {
 
 export default function UserCard({ user, onRequestSwap }: UserCardProps) {
   return (
-    <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 border-2 border-transparent hover:border-secondary">
+    <GlowingCard
+      containerClassName="h-full"
+      className="flex flex-col h-full"
+    >
       <CardHeader className="flex flex-row items-center gap-4">
         <Avatar className="h-16 w-16 border-2 border-secondary">
           <AvatarImage src={user.avatar} alt={user.name} data-ai-hint="profile avatar" />
@@ -49,6 +53,6 @@ export default function UserCard({ user, onRequestSwap }: UserCardProps) {
           Request Swap
         </Button>
       </CardFooter>
-    </Card>
+    </GlowingCard>
   );
 }
