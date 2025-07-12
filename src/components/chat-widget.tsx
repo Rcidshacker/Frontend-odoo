@@ -21,6 +21,7 @@ export function ChatWidget() {
     const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
     const [message, setMessage] = useState("");
     
+    const widgetRef = useRef<HTMLDivElement>(null);
     const selectedConversation = conversations.find(c => c.id === selectedConversationId);
     const otherUser = selectedConversation ? users.find(u => u.id === selectedConversation.participantIds.find(id => id !== currentUser.id)) : null;
 
@@ -29,6 +30,20 @@ export function ChatWidget() {
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [selectedConversation?.messages]);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (widgetRef.current && !widgetRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        }
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isOpen]);
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -96,7 +111,7 @@ export function ChatWidget() {
     }
 
     return (
-        <Card className="fixed bottom-5 right-5 w-96 h-[600px] flex flex-col shadow-2xl z-50">
+        <Card ref={widgetRef} className="fixed bottom-5 right-5 w-96 h-[600px] flex flex-col shadow-2xl z-50">
             <CardHeader className="flex flex-row items-center justify-between p-3 border-b">
                 <CardTitle className="text-lg truncate">
                     {selectedConversationId && otherUser ? otherUser.name : "Messages"}
