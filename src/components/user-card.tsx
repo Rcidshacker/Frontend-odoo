@@ -1,9 +1,9 @@
 import { User } from "@/lib/mock-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRightLeft, Briefcase, Target, User as UserIcon } from "lucide-react";
+import { ArrowRightLeft, Briefcase, Star, Target, User as UserIcon } from "lucide-react";
 import { GlowingEffect } from "./ui/glowing-effect";
 
 interface UserCardProps {
@@ -12,6 +12,10 @@ interface UserCardProps {
 }
 
 export default function UserCard({ user, onRequestSwap }: UserCardProps) {
+  const averageRating = user.feedback.length > 0
+    ? user.feedback.reduce((acc, fb) => acc + fb.rating, 0) / user.feedback.length
+    : 0;
+    
   return (
     <div className="relative h-full w-full rounded-lg bg-card text-card-foreground shadow-sm border p-px">
         <GlowingEffect proximity={80} spread={120} blur={24}>
@@ -21,9 +25,17 @@ export default function UserCard({ user, onRequestSwap }: UserCardProps) {
                     <AvatarImage src={user.avatar} alt={user.name} data-ai-hint="profile avatar" />
                     <AvatarFallback><UserIcon /></AvatarFallback>
                     </Avatar>
-                    <div>
-                    <CardTitle className="text-xl">{user.name}</CardTitle>
-                    <CardDescription>{user.location}</CardDescription>
+                    <div className="space-y-1">
+                        <CardTitle className="text-xl">{user.name}</CardTitle>
+                        <CardDescription>{user.location}</CardDescription>
+                        {user.feedback.length > 0 && (
+                            <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star key={i} className={`h-4 w-4 ${i < Math.round(averageRating) ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
+                                ))}
+                                <span className="text-xs text-muted-foreground ml-1">({user.feedback.length})</span>
+                            </div>
+                        )}
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-4 p-2 pt-0">
